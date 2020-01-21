@@ -21,10 +21,12 @@ jobs:
         run: |
           echo github.event.client_payload
           yarn install --pure-lockfile
-          echo GATSBY_TENANT=hsf >> .env.${{github.event.client_payload.tenant}}.${{github.event.client_payload.env}}
-          echo CMS_URL=${{  secrets.HSF_DEV_CMS_URL }} >> .env.${{github.event.client_payload.tenant}}.${{github.event.client_payload.env}}
-          echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> .env.${{github.event.client_payload.tenant}}.${{github.event.client_payload.env}}
-          echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> .env.${{github.event.client_payload.tenant}}.${{github.event.client_payload.env}}
+          echo ${{github.event.client_payload.tenant}}
+          echo ${{github.event.client_payload.env}}
+          echo GATSBY_TENANT=hsf >> .env.hsf.master
+          echo CMS_URL=${{  secrets.HSF_DEV_CMS_URL }} >> .env.hsf.master
+          echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> .env.hsf.master
+          echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> .env.hsf.master
           yarn build
         env:
           CI: true
