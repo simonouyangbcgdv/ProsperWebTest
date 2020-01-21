@@ -1,0 +1,128 @@
+{
+  "name": "prosper-web",
+  "private": true,
+  "description": "Prosper web",
+  "version": "0.1.0",
+  "author": "BCGDV",
+  "bugs": {
+    "url": "https://github.com/Hispanic-Scholarship-Fund/prosper-web"
+  },
+  "engines": {
+    "node": "12.x",
+    "npm": "6.x",
+    "yarn": "^1.21.1"
+  },
+  "dependencies": {
+    "@emotion/core": "^10.0.27",
+    "@mdx-js/react": "^1.5.3",
+    "gatsby": "^2.18.12",
+    "gatsby-image": "^2.2.34",
+    "gatsby-plugin-google-analytics": "^2.1.29",
+    "gatsby-plugin-manifest": "^2.2.31",
+    "gatsby-plugin-offline": "^3.0.27",
+    "gatsby-plugin-react-helmet": "^3.1.16",
+    "gatsby-plugin-sharp": "^2.3.5",
+    "gatsby-plugin-theme-ui": "^0.2.53",
+    "gatsby-plugin-typescript": "^2.1.26",
+    "gatsby-plugin-typography": "^2.3.18",
+    "gatsby-remark-copy-linked-files": "^2.1.31",
+    "gatsby-remark-images": "^3.1.35",
+    "gatsby-remark-prismjs": "^3.3.25",
+    "gatsby-remark-responsive-iframe": "^2.2.28",
+    "gatsby-remark-smartypants": "^2.1.17",
+    "gatsby-source-directus-cms": "^1.0.4",
+    "gatsby-transformer-remark": "^2.6.39",
+    "gatsby-transformer-sharp": "^2.3.7",
+    "prismjs": "^1.17.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-helmet": "^5.2.1",
+    "react-typography": "^0.16.19",
+    "sharp": "^0.23.4",
+    "theme-ui": "^0.2.52",
+    "typeface-merriweather": "0.0.72",
+    "typeface-montserrat": "0.0.75",
+    "typography": "^0.16.19",
+    "typography-theme-wordpress-2016": "^0.16.19"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@storybook/addon-a11y": "^5.3.5",
+    "@storybook/addon-actions": "^5.3.5",
+    "@storybook/addon-docs": "^5.3.6",
+    "@storybook/addon-knobs": "^5.3.5",
+    "@storybook/addons": "^5.3.5",
+    "@storybook/cli": "^5.3.5",
+    "@storybook/react": "^5.3.5",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.4.0",
+    "@types/jest": "^24.9.0",
+    "@types/node": "^13.1.6",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.9.4",
+    "@types/react-helmet": "^5.0.15",
+    "@types/theme-ui": "^0.2.6",
+    "@types/typography": "^0.16.3",
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.6",
+    "babel-preset-gatsby": "^0.2.27",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
+    "husky": "^3.1.0",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
+    "react-docgen-typescript-loader": "^3.6.0",
+    "ts-jest": "^24.3.0",
+    "tslib": "^1.10.0",
+    "typescript": "^3.7.4"
+  },
+  "homepage": "https://github.com/Hispanic-Scholarship-Fund/prosper-web",
+  "keywords": [
+    "gatsby"
+  ],
+  "main": "n/a",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hispanic-Scholarship-Fund/prosper-web"
+  },
+  "scripts": {
+    "dev:hsf": "GATSBY_ACTIVE_TENANT=hsf GATSBY_ACTIVE_ENV=dev gatsby develop",
+    "dev:tgs": "GATSBY_ACTIVE_TENANT=tgs GATSBY_ACTIVE_ENV=dev gatsby develop",
+    "build:hsf:dev": "GATSBY_ACTIVE_TENANT=hsf GATSBY_ACTIVE_ENV=dev gatsby build",
+    "build": "gatsby build",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "npm run type-check && eslint '*/**/*.{js,ts,tsx}' --ignore-path .gitignore",
+    "storybook": "start-storybook -p 6006",
+    "storybook:build": "build-storybook",
+    "storybook:start": "npx http-server storybook-static",
+    "preinstall": "$npm_execpath --silent run checkyarn",
+    "checkyarn": "echo \"$npm_execpath\" | grep -q \"yarn\\.js$\" || (echo '⚠️  Use yarn not npm! ⚠️ ' && echo && exit 1)"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --ignore-path .gitignore --fix",
+      "git add"
+    ],
+    "*.{json,css,scss,less,html,md}": [
+      "pretty-quick --staged",
+      "git add"
+    ]
+  }
+}

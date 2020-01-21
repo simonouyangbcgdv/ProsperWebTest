@@ -1,0 +1,64 @@
+name: CI/CD Pipeline for cms-gatsby
+on:
+  repository_dispatch:
+  push:
+jobs:
+  # test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [12.x]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Use Node.js ${{ matrix.node-version }}
+  #       uses: actions/setup-node@master
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #     - name: Test project
+  #       run: |
+  #         yarn install --pure-lockfile
+  #         yarn lint
+  #         yarn test
+  #         echo ${{ github.event.client_payload.tenant }}
+  build:
+    # build should only happen for branches: master/staging/uat/prod
+    # build should only happen if client_payload.tenant is not null and in ['hsf', 'tgs']
+    # build should only happen if client_payload.env is not null and in ['dev', 'staging', 'uat', 'prod']
+    if: contains(github.ref, 'master') || contains(github.event.client_payload.tenant, 'hsf') || contains(github.event.client_payload.env, 'dev')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Build project
+        # echo GMS_URL=${{secrets.HSF_DEV_CMS_URL}} >> .env.${var_tenant}.${var_env}
+        run: |
+          yarn install --pure-lockfile
+          echo GATSBY_TENANT=hsf >> .env.hsf.dev
+          echo CMS_URL=http://167.172.113.130 >> .env.hsf.dev
+          echo CMS_PROJECT_NAME=hsf-demo >> .env.hsf.dev
+          echo CMS_USERNAME=andrew.zheng@bcgdv.com >> .env.hsf.dev
+          echo CMS_PASSWORD=00000000 >> .env.hsf.dev
+          yarn build
+        env:
+          CI: true
+          GATSBY_ACTIVE_TENANT: hsf # should come from client_payload.tenant
+          GATSBY_ACTIVE_ENV: dev # same as above
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: public
+          path: public
+      # Deploy artifacts to Amazon S3 Bucket
+      - name: Deploy artifacts to Amazon S3 Bucket
+        uses: ItsKarma/aws-cli@v1.70.0
+        with:
+          args: s3 sync public s3://cms-gatsby --no-progress --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
