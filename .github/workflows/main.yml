@@ -5,7 +5,7 @@ jobs:
   build:
     # build should only happen if client_payload.tenant is not null and in ['hsf', 'tgs']
     # build should only happen if client_payload.env is not null and in ['master', 'staging', 'uat', 'prod']
-    # if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'master' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod' || github.event.client_payload.env == 'chore/multi-tenant-cicd-subbranch'
+    if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'master' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod' || github.event.client_payload.env == 'chore/multi-tenant-cicd-subbranch'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,9 +29,9 @@ jobs:
       - name: Build project
         run: |
           echo 'tenant'
-          echo ${{ steps.tenant.outputs.action_tenant }}
+          echo ${{ github.event.client_payload.tenant }}
           echo 'env'
-          echo ${{ steps.env.outputs.action_env }}
+          echo ${{ github.event.client_payload.env }}
           echo ${GATSBY_ACTIVE_TENANT}
           echo GATSBY_TENANT=hsf >> .env.hsf.master
           echo CMS_URL=${{  secrets.HSF_DEV_CMS_URL }} >> .env.hsf.master
