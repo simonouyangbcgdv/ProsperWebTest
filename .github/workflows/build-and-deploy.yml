@@ -38,8 +38,8 @@ jobs:
           yarn build
         env:
           CI: true
-          GATSBY_ACTIVE_TENANT: ${{ github.event.client_payload.tenant }} # should come from client_payload.tenant
-          GATSBY_ACTIVE_ENV: ${{ github.event.client_payload.env }} # same as above
+          GATSBY_ACTIVE_TENANT: ${{ steps.tenant.outputs.action_tenant }} # should come from client_payload.tenant
+          GATSBY_ACTIVE_ENV: ${{ steps.env.outputs.action_env }} # same as above
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
