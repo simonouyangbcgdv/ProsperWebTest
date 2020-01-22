@@ -22,12 +22,12 @@ jobs:
         run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
         id: env_file
       - name: Checkout Master branch
-        if: contains(${{ steps.env.outputs.action_env }}, 'dev') == true
+        if: contains(steps.env.outputs.action_env, 'dev') == true
         uses: actions/checkout@v2
         with:
           ref: master
       - name: Checkout branch
-        if: contains(${{ steps.env.outputs.action_env }}, 'dev') == false
+        if: contains(steps.env.outputs.action_env, 'dev') == false
         uses: actions/checkout@v2
         with:
           ref: ${{ steps.env.outputs.action_env }}
