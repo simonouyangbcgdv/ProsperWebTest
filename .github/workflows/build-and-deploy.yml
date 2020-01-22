@@ -22,15 +22,15 @@ jobs:
         run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
         id: env_file
       - name: Checkout Master branch
-        if: contains(github.event.client_payload.env, 'dev') == true
+        if: contains(${{ steps.env.outputs.action_env }}, 'dev') == true
         uses: actions/checkout@v2
         with:
           ref: master
       - name: Checkout branch
-        if: contains(github.event.client_payload.env, 'dev') == false
+        if: contains(${{ steps.env.outputs.action_env }}, 'dev') == false
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.client_payload.env }}
+          ref: ${{ steps.env.outputs.action_env }}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
         with:
@@ -44,7 +44,6 @@ jobs:
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> ${{ steps.env_file.outputs.action_env_file }}
           echo CMS_USERNAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> ${{ steps.env_file.outputs.action_env_file }}
           echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> ${{ steps.env_file.outputs.action_env_file }}
-          yarn install
           yarn build
         env:
           CI: true
