@@ -21,8 +21,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Yarn Install with cache
         uses: bahmutov/npm-install@v1
+      - name: Show Payload
+        run: |
+          echo "payload: ${{ toJson(github.event.client_payload) }}"'
       - name: Set Tenant
-        run: echo ::set-output name=action_tenant::${{ github.event.client_payload.tenant }}
+        run: |
+          echo ::set-output name=action_tenant::${{ github.event.client_payload.tenant }}
         id: tenant
       - name: Set Environment
         run: echo ::set-output name=action_env::${{ github.event.client_payload.env }}
