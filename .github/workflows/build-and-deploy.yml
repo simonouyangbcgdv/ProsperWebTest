@@ -21,9 +21,16 @@ jobs:
       - name: Set Environment File Name
         run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
         id: env_file
+      - name: Checkout Master branch
+      - if: github.event.client_payload.env == 'dev'
       - uses: actions/checkout@v2
         with:
           ref: master
+      - name: Checkout branch
+      - if: contains(github.event.client_payload.env, 'dev') == false
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.env }}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
         with:
@@ -41,8 +48,8 @@ jobs:
           yarn build
         env:
           CI: true
-          GATSBY_ACTIVE_TENANT: ${{ steps.tenant.outputs.action_tenant }} # should come from client_payload.tenant
-          GATSBY_ACTIVE_ENV: ${{ steps.env.outputs.action_env }} # same as above
+          GATSBY_ACTIVE_TENANT: ${{ steps.tenant.outputs.action_tenant }}
+          GATSBY_ACTIVE_ENV: ${{ steps.env.outputs.action_env }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
