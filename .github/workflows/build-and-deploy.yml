@@ -1,64 +1,68 @@
 name: Build and Deploy
-on:
-  repository_dispatch:
+on: [repository_dispatch]
 jobs:
   build:
-    # build should only happen if client_payload.tenant is not null and in ['hsf', 'tgs']
-    # build should only happen if client_payload.env is not null and in ['master', 'staging', 'uat', 'prod']
-    if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'dev' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod'
+    # NOTE make sure the tenant list is always update to date
+    # NOTE github will convert null to 0
+    if: github.event.client_payload.tenant != 0 && contains('hsf/tgs', github.event.client_payload.tenant) && github.event.client_payload.env != 0 && contains('dev/staging/uat/prod', github.event.client_payload.env)
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [12.x]
     steps:
-      - name: Set Tenant
+      - name: Set outputs
         run: |
-          echo ::set-output name=action_tenant::${{ github.event.client_payload.tenant }}
-        id: tenant
-      - name: Set Environment
-        run: echo ::set-output name=action_env::${{ github.event.client_payload.env }}
-        id: env
-      - name: Set Environment File Name
-        run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
-        id: env_file
+          echo ::set-output name=tenant::${{ github.event.client_payload.tenant }}
+          echo ::set-output name=env::${{ github.event.client_payload.env }}
+          echo ::set-output name=env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
+          echo ::set-output name=secret_prefix:secrets.${{ github.event.client_payload.tenant }}_${{ github.event.client_payload.env }}
+        id: detection
+
       - name: Checkout Master branch
-        if: contains(steps.env.outputs.action_env, 'dev') == true
+        if: github.event.client_payload.env == 'dev'
         uses: actions/checkout@v2
         with:
           ref: master
+
       - name: Checkout branch
-        if: contains(steps.env.outputs.action_env, 'dev') == false
+        if: github.event.client_payload.env != 'dev'
         uses: actions/checkout@v2
         with:
-          ref: ${{ steps.env.outputs.action_env }}
+          ref: ${{ github.event.client_payload.env }}
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Yarn Install with cache
-        uses: bahmutov/npm-install@v1
+
+      - name: Create .env file
+        run: |
+          echo GATSBY_TENANT=${{ steps.detection.outputs.tenant }} >> ${{ steps.detection.outputs.env_file }}
+          echo CMS_URL=${{ {{steps.detection.outputs.secret_prefix}}_CMS_URL }} >> ${{ steps.detection.outputs.env_file }}
+          echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> ${{ steps.detection.outputs.env_file }}
+          echo CMS_USERNAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> ${{ steps.detection.outputs.env_file }}
+          echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> ${{ steps.detection.outputs.env_file }}
+
       - name: Build project
         run: |
-          echo GATSBY_TENANT=${{ github.event.client_payload.tenant }} >> ${{ steps.env_file.outputs.action_env_file }}
-          echo CMS_URL=${{ secrets.HSF_DEV_CMS_URL }} >> ${{ steps.env_file.outputs.action_env_file }}
-          echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> ${{ steps.env_file.outputs.action_env_file }}
-          echo CMS_USERNAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> ${{ steps.env_file.outputs.action_env_file }}
-          echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> ${{ steps.env_file.outputs.action_env_file }}
+          yarn install --frozen-lockfile
           yarn build
         env:
           CI: true
-          GATSBY_ACTIVE_TENANT: ${{ steps.tenant.outputs.action_tenant }}
-          GATSBY_ACTIVE_ENV: ${{ steps.env.outputs.action_env }}
+          GATSBY_ACTIVE_TENANT: ${{ steps.detection.outputs.tenant }}
+          GATSBY_ACTIVE_ENV: ${{ steps.detection.outputs.env }}
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
           name: public
           path: public
+
       # Deploy artifacts to Amazon S3 Bucket
       - name: Deploy artifacts to Amazon S3 Bucket
         uses: ItsKarma/aws-cli@v1.70.0
         with:
-          args: s3 sync public s3://cms-gatsby-${{ steps.tenant.outputs.action_tenant }}-${{ steps.env.outputs.action_env }} --no-progress --delete
+          args: s3 sync public s3://cms-gatsby-${{ steps.detection.outputs.tenant }}-${{ steps.detection.outputs.env }} --no-progress --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
