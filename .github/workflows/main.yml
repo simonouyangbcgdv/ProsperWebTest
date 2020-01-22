@@ -6,7 +6,7 @@ jobs:
     # build should only happen if client_payload.tenant is not null and in ['hsf', 'tgs']
     # build should only happen if client_payload.env is not null and in ['master', 'staging', 'uat', 'prod']
     #if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'master' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod' || github.event.client_payload.env == 'chore/multi-tenant-cicd-subbranch'
-    if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs'
+    if: contains(github.event.client_payload.tenant, 'hsf') || contains(github.event.client_payload.tenant, 'tgs')
     runs-on: ubuntu-latest
     strategy:
       matrix:
