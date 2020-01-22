@@ -12,19 +12,27 @@ jobs:
         node-version: [12.x]
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: master
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Yarn Install with cache
+        uses: bahmutov/npm-install@v1
+      - name: Set Tenant
+        run: echo ::set-output name=action_tenant::${{ github.event.client_payload.tenant }}
+        id: tenant
+      - name: Set Environment
+        run: echo ::set-output name=action_env::${{ github.event.client_payload.env }}
+        id: env
       - name: Build project
-
         run: |
-          echo github.event.client_payload
-          yarn install --pure-lockfile
           echo 'tenant'
-          echo github.event.client_payload.tenant
+          echo ${{ steps.env.outputs.action_tenant }}
           echo 'env'
-          echo github.event.client_payload.env
+          echo ${{ steps.env.outputs.action_env }}
+          echo ${GATSBY_ACTIVE_TENANT}
           echo GATSBY_TENANT=hsf >> .env.hsf.master
           echo CMS_URL=${{  secrets.HSF_DEV_CMS_URL }} >> .env.hsf.master
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> .env.hsf.master
@@ -33,8 +41,8 @@ jobs:
           yarn build
         env:
           CI: true
-          GATSBY_ACTIVE_TENANT: github.event.client_payload.tenant # should come from client_payload.tenant
-          GATSBY_ACTIVE_ENV: github.event.client_payload.env # same as above
+          GATSBY_ACTIVE_TENANT: ${{ steps.env.outputs.action_tenant }} # should come from client_payload.tenant
+          GATSBY_ACTIVE_ENV: ${{ steps.env.outputs.action_env }}# same as above
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
