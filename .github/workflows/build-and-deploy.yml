@@ -33,10 +33,10 @@ jobs:
       - name: Build project
         run: |
           echo GATSBY_TENANT=${{ github.event.client_payload.tenant }} >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
-          echo CMS_URL=http://167.172.113.130/admin >> .env.hsf.dev
-          echo CMS_PROJECT_NAME=hsf-demo >> .env.hsf.dev
-          echo CMS_USERNAME=andrew.zheng@bcgdv.com >> .env.hsf.dev
-          echo CMS_PASSWORD=00000000 >> .env.hsf.dev
+          echo CMS_URL=http://167.172.113.130/admin >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
+          echo CMS_PROJECT_NAME=hsf-demo >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
+          echo CMS_USERNAME=andrew.zheng@bcgdv.com >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
+          echo CMS_PASSWORD=00000000 >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
           yarn install
           yarn build
         env:
