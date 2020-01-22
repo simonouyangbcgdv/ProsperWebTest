@@ -29,7 +29,7 @@ jobs:
       - name: Build project
         run: |
           echo 'tenant'
-          echo ${{ steps.env.outputs.action_tenant }}
+          echo ${{ steps.tenant.outputs.action_tenant }}
           echo 'env'
           echo ${{ steps.env.outputs.action_env }}
           echo ${GATSBY_ACTIVE_TENANT}
@@ -41,7 +41,7 @@ jobs:
           yarn build
         env:
           CI: true
-          GATSBY_ACTIVE_TENANT: ${{ steps.env.outputs.action_tenant }} # should come from client_payload.tenant
+          GATSBY_ACTIVE_TENANT: ${{ steps.tenant.outputs.action_tenant }} # should come from client_payload.tenant
           GATSBY_ACTIVE_ENV: ${{ steps.env.outputs.action_env }}# same as above
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
