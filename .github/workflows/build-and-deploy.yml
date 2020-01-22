@@ -26,17 +26,17 @@ jobs:
         run: echo ::set-output name=action_env::${{ github.event.client_payload.env }}
         id: env
       - name: Set Environment File Name
-        run: echo ::set-output name=action_env_file::${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
+        run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
         id: env_file
       - name: Yarn Install with cache
         uses: bahmutov/npm-install@v1
       - name: Build project
         run: |
-          echo GATSBY_TENANT=${{ github.event.client_payload.tenant }} >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
-          echo CMS_URL=http://167.172.113.130 >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
-          echo CMS_PROJECT_NAME=hsf-demo >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
-          echo CMS_USERNAME=andrew.zheng@bcgdv.com >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
-          echo CMS_PASSWORD=00000000 >> .env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
+          echo GATSBY_TENANT=${{ github.event.client_payload.tenant }} >> ${{ steps.env_file.outputs.action_env_file }}
+          echo CMS_URL=http://167.172.113.130 >> ${{ steps.env_file.outputs.action_env_file }}
+          echo CMS_PROJECT_NAME=hsf-demo >> ${{ steps.env_file.outputs.action_env_file }}
+          echo CMS_USERNAME=andrew.zheng@bcgdv.com >> ${{ steps.env_file.outputs.action_env_file }}
+          echo CMS_PASSWORD=00000000 >> ${{ steps.env_file.outputs.action_env_file }}
           yarn install
           yarn build
         env:
@@ -52,7 +52,7 @@ jobs:
       - name: Deploy artifacts to Amazon S3 Bucket
         uses: ItsKarma/aws-cli@v1.70.0
         with:
-          args: s3 public s3://cms-gatsby --no-progress --delete
+          args: s3 public s3://cms-gatsby-${{ steps.tenant.outputs.action_tenant }} --no-progress --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
