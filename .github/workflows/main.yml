@@ -25,22 +25,16 @@ jobs:
       - name: Set Environment
         run: echo ::set-output name=action_env::${{ github.event.client_payload.env }}
         id: env
+      - name: Yarn Install with cache
+        uses: bahmutov/npm-install@v1
       - name: Build project
         run: |
-          echo 'tenant'
-          echo ${{ github.event.client_payload.tenant }}
-          echo 'env'
-          echo ${{ github.event.client_payload.env }}
-          echo 'cms information'
-          echo ${{  secrets.HSF_DEV_CMS_URL }}
-          echo ${{ secrets.HSF_DEV_CMS_PROJECT_NAME }}
-          echo ${{ secrets.HSF_DEV_CMS_USERNAME }}
-          echo ${{ secrets.HSF_DEV_CMS_PASSWORD }}
           echo GATSBY_TENANT=${{ github.event.client_payload.tenant }} >> .env.hsf.master
           echo CMS_URL=${{  secrets.HSF_DEV_CMS_URL }} >> .env.hsf.master
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> .env.hsf.master
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> .env.hsf.master
           echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> .env.hsf.master
+          yarn install
           yarn build
         env:
           CI: true
