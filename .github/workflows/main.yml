@@ -21,9 +21,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Yarn Install with cache
         uses: bahmutov/npm-install@v1
-      - name: Show Payload
-        run: |
-          echo "payload: ${{ toJson(github.event.client_payload) }}"'
       - name: Set Tenant
         run: |
           echo ::set-output name=action_tenant::${{ github.event.client_payload.tenant }}
@@ -46,8 +43,8 @@ jobs:
           yarn build
         env:
           CI: true
-          GATSBY_ACTIVE_TENANT: ${{ steps.tenant.outputs.action_tenant }} # should come from client_payload.tenant
-          GATSBY_ACTIVE_ENV: ${{ steps.env.outputs.action_env }}# same as above
+          GATSBY_ACTIVE_TENANT: ${{ github.event.client_payload.tenant }} # should come from client_payload.tenant
+          GATSBY_ACTIVE_ENV: ${{ github.event.client_payload.env }} # same as above
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
