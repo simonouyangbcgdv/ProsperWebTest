@@ -22,13 +22,13 @@ jobs:
         run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
         id: env_file
       - name: Checkout Master branch
-      - if: github.event.client_payload.env == 'dev'
-      - uses: actions/checkout@v2
+        if: contains(github.event.client_payload.env, 'dev') == true
+        uses: actions/checkout@v2
         with:
           ref: master
       - name: Checkout branch
-      - if: contains(github.event.client_payload.env, 'dev') == false
-      - uses: actions/checkout@v2
+        if: contains(github.event.client_payload.env, 'dev') == false
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.client_payload.env }}
       - name: Use Node.js ${{ matrix.node-version }}
