@@ -5,19 +5,12 @@ jobs:
   build:
     # build should only happen if client_payload.tenant is not null and in ['hsf', 'tgs']
     # build should only happen if client_payload.env is not null and in ['master', 'staging', 'uat', 'prod']
-    if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'master' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod'
+    if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'dev' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod'
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [12.x]
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: master
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@master
-        with:
-          node-version: ${{ matrix.node-version }}
       - name: Set Tenant
         run: |
           echo ::set-output name=action_tenant::${{ github.event.client_payload.tenant }}
@@ -28,6 +21,13 @@ jobs:
       - name: Set Environment File Name
         run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
         id: env_file
+      - name: Checkout master branch
+      - if: github.event.client_payload.env == 'dev'
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Yarn Install with cache
         uses: bahmutov/npm-install@v1
       - name: Build project
@@ -52,7 +52,7 @@ jobs:
       - name: Deploy artifacts to Amazon S3 Bucket
         uses: ItsKarma/aws-cli@v1.70.0
         with:
-          args: s3 public s3://cms-gatsby-${{ steps.tenant.outputs.action_tenant }} --no-progress --delete
+          args: s3 sync public s3://cms-gatsby-${{ steps.tenant.outputs.action_tenant }}-${{ steps.env.outputs.action_env }} --no-progress --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
