@@ -43,7 +43,7 @@ jobs:
           echo CMS_URL=http://167.172.113.130 >> ${{ steps.env_file.outputs.action_env_file }}
           echo CMS_PROJECT_NAME=hsf-demo >> ${{ steps.env_file.outputs.action_env_file }}
           echo CMS_USERNAME=andrew.zheng@bcgdv.com >> ${{ steps.env_file.outputs.action_env_file }}
-          echo CMS_PASSWORD=00000000 >> ${{ steps.env_file.outputs.action_env_file }}
+          echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> ${{ steps.env_file.outputs.action_env_file }}
           yarn install
           yarn build
         env:
