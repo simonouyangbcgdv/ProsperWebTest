@@ -21,8 +21,7 @@ jobs:
       - name: Set Environment File Name
         run: echo ::set-output name=action_env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
         id: env_file
-      - name: Checkout master branch
-      - if: github.event.client_payload.env == 'dev'
+      - name: Checkout branch
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@master
