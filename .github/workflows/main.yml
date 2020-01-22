@@ -5,8 +5,7 @@ jobs:
   build:
     # build should only happen if client_payload.tenant is not null and in ['hsf', 'tgs']
     # build should only happen if client_payload.env is not null and in ['master', 'staging', 'uat', 'prod']
-    #if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'master' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod' || github.event.client_payload.env == 'chore/multi-tenant-cicd-subbranch'
-    #if: contains(github.event.client_payload.tenant, 'hsf')
+    if: github.event.client_payload.tenant == 'hsf' || github.event.client_payload.tenant == 'tgs' || github.event.client_payload.env == 'master' || github.event.client_payload.env == 'staging'|| github.event.client_payload.env == 'uat' || github.event.client_payload.env == 'prod'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,8 +18,6 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Yarn Install with cache
-        uses: bahmutov/npm-install@v1
       - name: Set Tenant
         run: |
           echo ::set-output name=action_tenant::${{ github.event.client_payload.tenant }}
@@ -34,8 +31,12 @@ jobs:
           echo ${{ github.event.client_payload.tenant }}
           echo 'env'
           echo ${{ github.event.client_payload.env }}
-          echo ${GATSBY_ACTIVE_TENANT}
-          echo GATSBY_TENANT=hsf >> .env.hsf.master
+          echo 'cms information'
+          echo ${{  secrets.HSF_DEV_CMS_URL }}
+          echo ${{ secrets.HSF_DEV_CMS_PROJECT_NAME }}
+          echo ${{ secrets.HSF_DEV_CMS_USERNAME }}
+          echo ${{ secrets.HSF_DEV_CMS_PASSWORD }}
+          echo GATSBY_TENANT=${{ github.event.client_payload.tenant }} >> .env.hsf.master
           echo CMS_URL=${{  secrets.HSF_DEV_CMS_URL }} >> .env.hsf.master
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> .env.hsf.master
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> .env.hsf.master
