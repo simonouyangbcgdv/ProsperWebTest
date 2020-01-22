@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for cms-gatsby
+name: Build and Deploy
 on:
   repository_dispatch:
 jobs:
