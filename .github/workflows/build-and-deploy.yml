@@ -15,7 +15,7 @@ jobs:
           echo ::set-output name=tenant::${{ github.event.client_payload.tenant }}
           echo ::set-output name=env::${{ github.event.client_payload.env }}
           echo ::set-output name=env_file::.env.${{ github.event.client_payload.tenant }}.${{ github.event.client_payload.env }}
-          echo ::set-output name=secret_prefix:secrets.${{ github.event.client_payload.tenant }}_${{ github.event.client_payload.env }}
+          echo ::set-output name=bucket_name::cms-gatsby
         id: detection
 
       - name: Checkout Master branch
@@ -38,10 +38,11 @@ jobs:
       - name: Create .env file
         run: |
           echo GATSBY_TENANT=${{ steps.detection.outputs.tenant }} >> ${{ steps.detection.outputs.env_file }}
-          echo CMS_URL=${{ {{steps.detection.outputs.secret_prefix}}_CMS_URL }} >> ${{ steps.detection.outputs.env_file }}
+          echo CMS_URL=${{ secrets.HSF_DEV_CMS_URL }} >> ${{ steps.detection.outputs.env_file }}
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> ${{ steps.detection.outputs.env_file }}
           echo CMS_USERNAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> ${{ steps.detection.outputs.env_file }}
           echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> ${{ steps.detection.outputs.env_file }}
+          echo GATSBY_API_URL=${{ secrets.HSF_DEV_GATSBY_API_URL }} >> ${{ steps.detection.outputs.env_file }}
 
       - name: Build project
         run: |
@@ -62,7 +63,8 @@ jobs:
       - name: Deploy artifacts to Amazon S3 Bucket
         uses: ItsKarma/aws-cli@v1.70.0
         with:
-          args: s3 sync public s3://cms-gatsby-${{ steps.detection.outputs.tenant }}-${{ steps.detection.outputs.env }} --no-progress --delete
+          args: aws s3 website s3://${{ steps.detection.outputs.bucket_name }} --index-document index.html --error-document client-routes/index.html && aws s3 sync public s3://${{ steps.detection.outputs.bucket_name }} --no-progress --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
