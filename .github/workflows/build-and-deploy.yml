@@ -1,5 +1,5 @@
 name: Build and Deploy
-on: [push]
+on: [push, repository_dispatch]
 jobs:
   build:
     # NOTE make sure the tenant list is always update to date
