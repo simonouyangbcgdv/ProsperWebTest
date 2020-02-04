@@ -1,5 +1,5 @@
 name: Build and Deploy
-on: [repository_dispatch]
+on: [push]
 jobs:
   build:
     # NOTE make sure the tenant list is always update to date
@@ -42,7 +42,6 @@ jobs:
           echo CMS_PROJECT_NAME=${{ secrets.HSF_DEV_CMS_PROJECT_NAME }} >> ${{ steps.detection.outputs.env_file }}
           echo CMS_USERNAME=${{ secrets.HSF_DEV_CMS_USERNAME }} >> ${{ steps.detection.outputs.env_file }}
           echo CMS_PASSWORD=${{ secrets.HSF_DEV_CMS_PASSWORD }} >> ${{ steps.detection.outputs.env_file }}
-          echo GATSBY_API_URL=${{ secrets.HSF_DEV_GATSBY_API_URL }} >> ${{ steps.detection.outputs.env_file }}
 
       - name: Build project
         run: |
